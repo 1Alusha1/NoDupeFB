@@ -12,40 +12,42 @@ function randomDelay(min = 500, max = 1500) {
 }
 
 // переключаем на фанку
-async function switchProfile(page, fanpage) {
-  try {
-    console.log("Переключаем профиль...");
+// async function switchProfile(page, fanpage) {
+//   try {
+//     console.log("Переключаем профиль...");
 
-    await page.waitForSelector("[aria-label='Ваш профиль']", {
-      timeout: randomDelay(),
-    });
+//     await page.waitForSelector("[aria-label='Ваш профиль']", {
+//       timeout: randomDelay(),
+//     });
 
-    await page.evaluate(() => {
-      const target = document.querySelector("[aria-label='Ваш профиль']");
-      if (target) target.click();
-    });
+//     await page.evaluate(() => {
+//       const target = document.querySelector("[aria-label='Ваш профиль']");
+//       if (target) target.click();
+//     });
 
-    await page.waitForSelector(
-      `[aria-label='Переключиться на профиль ${namefanpage}']`,
-      {
-        timeout: randomDelay(),
-      }
-    );
+//     console.log(`[aria-label='Переключиться на профиль ${fanpage}']`);
+//     await page.waitForSelector(
+//       `[aria-label='Переключиться на профиль ${fanpage}']`,
+//       {
+//         timeout: 3000,
+//       }
+//     );
 
-    await page.evaluate(() => {
-      const target = document.querySelector(
-        `[aria-label='Переключиться на профиль ${fanpage}']`
-      );
-      if (target) target.click();
-    });
+//     await page.evaluate((fanpagename) => {
+//       console.log("-----------------------------", fanpagename);
+//       const target = document.querySelector(
+//         `[aria-label='Переключиться на профиль ${fanpagename}']`
+//       );
+//       if (target) target.click();
+//     }, fanpage);
 
-    console.log("Профиль успешно переключён");
+//     console.log("Профиль успешно переключён");
 
-    await page.waitForNavigation({ waitUntil: "networkidle2" });
-  } catch (err) {
-    console.error("Ошибка при переключении профиля:", err.message);
-  }
-}
+//     await page.waitForNavigation({ waitUntil: "networkidle2" });
+//   } catch (err) {
+//     console.error("Ошибка при переключении профиля:", err.message);
+//   }
+// }
 
 async function blockUser(page, userId) {
   try {
@@ -118,7 +120,7 @@ async function blockUser(page, userId) {
 
     await page.evaluate(() => {
       const target = document.querySelector("[aria-label=Подтвердить]");
-      
+
       if (target) {
         target.click();
         console.log(target);
@@ -133,7 +135,7 @@ async function blockUser(page, userId) {
   }
 }
 
-const intiScraper = async (login, pass, accs, fanpage) => {
+const intiScraper = async (accs) => {
   const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
 
@@ -142,15 +144,15 @@ const intiScraper = async (login, pass, accs, fanpage) => {
     waitUntil: "networkidle2",
   });
 
-  await page.type("#email", login, { delay: 300 });
-  await page.type("#pass", pass, { delay: 400 });
-  await page.click('button[name="login"]');
-  await page.waitForNavigation({ waitUntil: "networkidle2" });
+  // await page.type("#email", login, { delay: 300 });
+  // await page.type("#pass", pass, { delay: 400 });
+  // await page.click('button[name="login"]');
+  // await page.waitForNavigation({ waitUntil: "networkidle2" });
 
-  console.log("Вход выполнен");
+  // console.log("Вход выполнен");
 
-  // переход на фанку
-  await switchProfile(page, fanpage);
+  // // переход на фанку
+  // await switchProfile(page);
 
   // Список ID или URL для блокировки
   const users = accs;
@@ -163,7 +165,9 @@ const intiScraper = async (login, pass, accs, fanpage) => {
       continue;
     }
 
-    await blockUser(page, userId);
+    setTimeout(async () => {
+      await blockUser(page, userId);
+    }, 60000);
 
     // Задержка между блокировками, чтобы не вызвать подозрения
     await new Promise((res) => setTimeout(res, 10000));

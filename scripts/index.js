@@ -37,17 +37,10 @@ form.addEventListener("submit", async (e) => {
       createError("Поле не может быть пустым", text);
       return false;
     }
-    if (!fanPage.value.trim()) {
-      createError("Поле не может быть пустым", fanPage);
-      return false;
-    }
 
     const idsList = text.value.trim().split(" ");
     const result = await window.electronAPI.runscrapper(
-      login.value,
-      password.value,
       idsList,
-      fanPage
     );
     console.log(result);
   } catch (error) {
