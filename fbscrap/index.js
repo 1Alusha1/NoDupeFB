@@ -10,45 +10,9 @@ function extractUserId(input) {
 function randomDelay(min = 500, max = 1500) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-
-// переключаем на фанку
-// async function switchProfile(page, fanpage) {
-//   try {
-//     console.log("Переключаем профиль...");
-
-//     await page.waitForSelector("[aria-label='Ваш профиль']", {
-//       timeout: randomDelay(),
-//     });
-
-//     await page.evaluate(() => {
-//       const target = document.querySelector("[aria-label='Ваш профиль']");
-//       if (target) target.click();
-//     });
-
-//     console.log(`[aria-label='Переключиться на профиль ${fanpage}']`);
-//     await page.waitForSelector(
-//       `[aria-label='Переключиться на профиль ${fanpage}']`,
-//       {
-//         timeout: 3000,
-//       }
-//     );
-
-//     await page.evaluate((fanpagename) => {
-//       console.log("-----------------------------", fanpagename);
-//       const target = document.querySelector(
-//         `[aria-label='Переключиться на профиль ${fanpagename}']`
-//       );
-//       if (target) target.click();
-//     }, fanpage);
-
-//     console.log("Профиль успешно переключён");
-
-//     await page.waitForNavigation({ waitUntil: "networkidle2" });
-//   } catch (err) {
-//     console.error("Ошибка при переключении профиля:", err.message);
-//   }
-// }
-
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 async function blockUser(page, userId) {
   try {
     console.log(`Блокируем пользователя с ID: ${userId}`);
@@ -135,8 +99,13 @@ async function blockUser(page, userId) {
   }
 }
 
-const intiScraper = async (accs) => {
-  const browser = await puppeteer.launch({ headless: false });
+const intiScraper = async (accs, type) => {
+  const browser = await puppeteer.launch({
+    headless: false,
+    executablePath:
+      "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+  });
+
   const page = await browser.newPage();
 
   // Вход в Facebook
@@ -144,36 +113,81 @@ const intiScraper = async (accs) => {
     waitUntil: "networkidle2",
   });
 
-  // await page.type("#email", login, { delay: 300 });
-  // await page.type("#pass", pass, { delay: 400 });
-  // await page.click('button[name="login"]');
-  // await page.waitForNavigation({ waitUntil: "networkidle2" });
+  setTimeout(async () => {
+    await startScrapper(accs, type, page);
+  }, 60000);
+};
 
-  // console.log("Вход выполнен");
+const startScrapper = async (accs, type, page) => {
+  console.log(accs, type)
+  switch (type) {
+    case "byId":
+      const users = accs;
 
-  // // переход на фанку
-  // await switchProfile(page);
+      for (const rawUser of users) {
+        const userId = extractUserId(rawUser);
 
-  // Список ID или URL для блокировки
-  const users = accs;
+        if (!userId) {
+          console.log(`Невозможно извлечь ID из ${rawUser}, пропускаем.`);
+          continue;
+        }
 
-  for (const rawUser of users) {
-    const userId = extractUserId(rawUser);
+        setTimeout(async () => {
+          await blockUser(page, userId);
+        }, 60000);
 
-    if (!userId) {
-      console.log(`Невозможно извлечь ID из ${rawUser}, пропускаем.`);
-      continue;
-    }
+        // Задержка между блокировками, чтобы не вызвать подозрения
+        await new Promise((res) => setTimeout(res, 10000));
+      }
+    case "byName":
+      const names = accs;
 
-    setTimeout(async () => {
-      await blockUser(page, userId);
-    }, 60000);
+      for (let name of names) {
+        await page.goto(`https://www.facebook.com/search/people/?q=${name}`, {
+          waitUntil: "networkidle2",
+        });
 
-    // Задержка между блокировками, чтобы не вызвать подозрения
-    await new Promise((res) => setTimeout(res, 10000));
+        await page.waitForSelector('[role="feed"]', {
+          timeout: randomDelay(),
+        });
+        console.log(`[role="feed"] найдено для ${name}`);
+
+        await delay(3000); // ждем для подгрузки
+
+        const profileLinks = await page.evaluate(() => {
+          const feed = document.querySelector('[role="feed"]');
+          if (!feed) return [];
+
+          const links = [];
+          const children = feed.children;
+
+          Array.from(children).forEach((item) => {
+            const a = item.querySelector("a");
+            if (a && a.href) {
+              links.push(a.href);
+            }
+          });
+
+          return links;
+        });
+
+        console.log(`Найдено ссылок: ${profileLinks.length}`);
+
+        for (let link of profileLinks) {
+          console.log(`Обрабатываем ссылку: ${link}`);
+
+          const userId = extractUserId(link);
+          console.log(`Извлечён userId: ${userId}`);
+
+          if (userId) {
+            await blockUser(page, userId);
+            await delay(10000); // задержка между блокировками
+          } else {
+            console.log(`Не удалось извлечь userId для ссылки ${link}`);
+          }
+        }
+      }
   }
-
-  await browser.close();
 };
 
 module.exports = intiScraper;

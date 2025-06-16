@@ -20,27 +20,23 @@ const createError = (message, parent) => {
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   try {
-    const login = form.elements["login"];
-    const password = form.elements["password"];
     const text = form.elements["ids"];
-    const fanPage = form.elements["fanPage"];
+    const radions = form.elements["type"];
 
-    if (!login.value.trim()) {
-      createError("Поле не может быть пустым", login);
+    if (!radions.value.trim()) {
+      createError("Поле не может быть пустым", radions);
       return false;
     }
-    if (!password.value.trim()) {
-      createError("Поле не может быть пустым", password);
-      return false;
-    }
+
     if (!text.value.trim()) {
       createError("Поле не может быть пустым", text);
       return false;
     }
 
-    const idsList = text.value.trim().split(" ");
+    const idsOrName = text.value.trim().split("\n");
     const result = await window.electronAPI.runscrapper(
-      idsList,
+      idsOrName,
+      radions.value
     );
     console.log(result);
   } catch (error) {

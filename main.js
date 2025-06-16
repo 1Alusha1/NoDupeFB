@@ -29,6 +29,6 @@ app.on("window-all-closed", () => {
   });
 });
 
-ipcMain.handle("run-scrapper", async (event, ...args) => {
-  return scrapper(...args);
+ipcMain.handle("run-scrapper", async (event, ids, type) => {
+  return scrapper(ids, type);
 });

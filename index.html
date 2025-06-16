@@ -1,84 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'"
-    />
-    <title>Duble block</title>
-    <link rel="stylesheet" href="./styles/index.css" />
-  </head>
 
-  <body>
-    <header>
+<head>
+  <meta charset="UTF-8" />
+  <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+  <title>Duble block</title>
+  <link rel="stylesheet" href="./styles/index.css" />
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <h1>Привет</h1>
+      <p>
+        Приложение предназначено для автоматического блокирования
+        дублирующихся аккаунтов на Facebook. Пожалуйста, следуйте приведённым
+        инструкциям для успешного использования.
+      </p>
+    </div>
+  </header>
+
+  <main>
+    <section>
       <div class="container">
-        <h1>Привет</h1>
+        <h2>О приложении</h2>
+
         <p>
-          Приложение предназначено для автоматического блокирования
-          дублирующихся аккаунтов на Facebook. Пожалуйста, следуйте приведённым
-          инструкциям для успешного использования.
+          Это приложение позволяет автоматически блокировать дублирующие аккаунты на Facebook. Для работы необходимо
+          заполнить форму:
+        </p>
+
+        <ul>
+          <li>
+            <strong>Тип работы приложения</strong> — выберите один из двух вариантов:
+            <ul>
+              <li><strong>По ID</strong> — блокировка выполняется по числовым ID пользователей.</li>
+              <li><strong>По имени</strong> — блокировка выполняется по имени и фамилии пользователя.</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Список пользователей</strong> — введите в текстовое поле список ID или имён пользователей, в
+            зависимости от выбранного типа работы.
+            Каждый ID или имя указывайте с новой строки (разделитель — перенос строки).
+          </li>
+        </ul>
+
+        <p>
+          После ввода всех данных и запуска приложения авторизуйтесь, выберите нужный аккаунт и через 2 минуты начнётся
+          блокировка указанных пользователей.
         </p>
       </div>
-    </header>
 
-    <main>
-      <section>
-        <div class="container">
-          <h2>О приложении</h2>
+    </section>
+    <section class="data">
+      <div class="container">
+        <form>
+          <label for="type1">
+            <span>Выберите тип:</span>
+            <div class="label-box">
+              <input type="radio" name="type" id="type1" value="byId">
+              <p>По Id</p>
+            </div>
+          </label>
+          <label for="type2">
+            <div class="label-box">
+              <input type="radio" name="type" id="type2" value="byName">
+              <p>По имени</p>
+            </div>
+          </label>
+          <label>
+            <span>Id пользователй</span>
+            <textarea name="ids" placeholder="100054727195590, 100002167374199,100054727195590, 100002167374199"
+              value=""></textarea>
+          </label>
+          <button type="submit">Запустить</button>
+        </form>
+      </div>
+    </section>
+  </main>
 
-          <p>
-            Это приложение позволяет автоматически блокировать дублирующие
-            аккаунты на Facebook. Для работы необходимо заполнить форму из трёх
-            полей:
-          </p>
-          <ul>
-            <li>
-              <strong>Логин</strong> и <strong>пароль</strong> — данные для
-              авторизации бота, чтобы он мог выполнять блокировку от имени
-              нужного аккаунта;
-            </li>
-            <li>
-              <strong>Список ID пользователей</strong> — вводится в текстовое
-              поле (textarea) через запятую. В список можно добавлять как
-              числовые ID, так и ссылки, содержащие ID. Для корректного
-              распознавания ID используется регулярное выражение:
-              <code>/(\d{8,})/</code>.
-            </li>
-          </ul>
+  <script src="./scripts/index.js"></script>
+</body>
 
-          <p>
-            После ввода всех данных и запуска, бот авторизуется и приступит к
-            блокировке указанных пользователей.
-          </p>
-        </div>
-      </section>
-      <section class="data">
-        <div class="container">
-          <form>
-            <label>
-              <span>Логин:</span>
-              <input type="text" name="login" value="380990641791" />
-            </label>
-            <label>
-              <span>Пароль:</span>
-              <input type="password" name="password" value="Bkmz5602589" />
-            </label>
-            <label>
-              <span>Id пользователй</span>
-              <textarea
-                name="ids"
-                placeholder="100054727195590, 100002167374199,100054727195590, 100002167374199"
-                value=""
-              ></textarea>
-            </label>
-            <button type="submit">Запустить</button>
-          </form>
-        </div>
-      </section>
-    </main>
-
-    <script src="./scripts/index.js"></script>
-  </body>
 </html>
