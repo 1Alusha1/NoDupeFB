@@ -13,11 +13,17 @@ function randomDelay(min = 500, max = 1500) {
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
-async function blockUser(page, userId) {
+async function blockUser(page, userId, type) {
   try {
     console.log(`Блокируем пользователя с ID: ${userId}`);
+    let url;
+    if (type === "byId") {
+      url = `https://www.facebook.com/profile.php?id=${userId}`;
+    } else {
+      url = userId;
+    }
 
-    await page.goto(`https://www.facebook.com/profile.php?id=${userId}`, {
+    await page.goto(url, {
       waitUntil: "networkidle2",
     });
 
@@ -119,7 +125,7 @@ const intiScraper = async (accs, type) => {
 };
 
 const startScrapper = async (accs, type, page) => {
-  console.log(accs, type)
+  console.log(accs, type);
   switch (type) {
     case "byId":
       const users = accs;
@@ -133,7 +139,7 @@ const startScrapper = async (accs, type, page) => {
         }
 
         setTimeout(async () => {
-          await blockUser(page, userId);
+          await blockUser(page, userId, "byId");
         }, 60000);
 
         // Задержка между блокировками, чтобы не вызвать подозрения
@@ -172,15 +178,15 @@ const startScrapper = async (accs, type, page) => {
         });
 
         console.log(`Найдено ссылок: ${profileLinks.length}`);
-
+        console.log(profileLinks);
         for (let link of profileLinks) {
           console.log(`Обрабатываем ссылку: ${link}`);
 
-          const userId = extractUserId(link);
+          const userId = link;
           console.log(`Извлечён userId: ${userId}`);
 
           if (userId) {
-            await blockUser(page, userId);
+            await blockUser(page, userId, "byName");
             await delay(10000); // задержка между блокировками
           } else {
             console.log(`Не удалось извлечь userId для ссылки ${link}`);
